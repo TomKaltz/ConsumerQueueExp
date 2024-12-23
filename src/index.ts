@@ -13,6 +13,7 @@ import {
   broker,
   store,
   subscriptions,
+  client,
 } from "@rotorsoft/eventually";
 import {
   PostgresStore,
@@ -50,8 +51,11 @@ bootstrap(async () => {
     .catch(console.error);
 
   // this will automatically start processing events
-  const processor = ConsumerQueueProcessor(NeverEndingSaga,{
-    concurrency: 100,
+  await ConsumerQueueProcessor(NeverEndingSaga,{
+    concurrency: 100, // 100 concurrent processing "slots"
     pollInterval: 1000,
   });
+
+  // start a randomly Identified Saga
+  await client().command(FirstAggregate,'StartSaga',{},{stream:crypto.randomUUID()});
 });

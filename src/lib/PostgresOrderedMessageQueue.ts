@@ -71,14 +71,13 @@ export const PostgresOrderedMessageQueue = <M extends Messages>(
         correlationKey: '',
         leaseMillis: 30000
       };
-      const client = await pool.connect();
       let acquiredMessage:
         | (Message<M> & { id: number; created: Date })
         | undefined;
 
       try {
         // First transaction: try to acquire a message
-        const { rows: next } = await client.query<
+        const { rows: next } = await pool.query<
           Message<M> & { id: number; created: Date }
         >(
           `WITH lockable_message AS (
@@ -119,7 +118,7 @@ export const PostgresOrderedMessageQueue = <M extends Messages>(
 
           // now delete the message, and make sure we still had the stream lock
           // due to our locking mechanism no other process should have updated this message
-          const result = await client.query(
+          const result = await pool.query(
             `DELETE FROM "${table}" WHERE id = $1 AND locked_by = $2`,
             [acquiredMessage.id, pid]
           );
@@ -128,7 +127,7 @@ export const PostgresOrderedMessageQueue = <M extends Messages>(
         } catch (err) {
           // Try to explicitly release the lock, but don't worry if it fails - locked_until is the fallback
           try {
-            await client.query(
+            await pool.query(
               `UPDATE "${table}" 
                SET locked_by = NULL, 
                    locked_until = NULL 
@@ -143,8 +142,6 @@ export const PostgresOrderedMessageQueue = <M extends Messages>(
         }
       } catch (err) {
         throw err;
-      } finally {
-        client.release();
       }
     }
   };
