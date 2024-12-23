@@ -1,0 +1,2 @@
+- Edit postgres config at top of [./src/index.ts](https://github.com/TomKaltz/ConsumerQueueExp/blob/main/src/index.ts)
+- Run ```npm run dev```
