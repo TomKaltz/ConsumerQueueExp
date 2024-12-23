@@ -1,4 +1,4 @@
-import { InferPolicy, cmd } from "@rotorsoft/eventually";
+import { InferPolicy, cmd, sleep } from "@rotorsoft/eventually";
 import { FirstAggregateSchemas } from "./First.aggregate";
 import { OtherAggregateSchemas } from "./Other.aggregate";
 
@@ -15,10 +15,12 @@ export const NeverEndingSagaSchemas = {
 export const NeverEndingSaga = (): InferPolicy<
   typeof NeverEndingSagaSchemas
 > => ({
-  description: "a saga that never ends",
+  description: "this is the saga that never ends",
   schemas: NeverEndingSagaSchemas,
   on: {
     FirstThingDone: async (event) => {
+      // Woohoo! we can do async stuff here without blocking other streams!!!
+      await sleep(300)
       return cmd("DoSecondThing", {}, event.stream.split("-")[0] + "-Other");
     },
     SecondThingDone: async (event) => {
