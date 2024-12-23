@@ -8,7 +8,7 @@ POC broker and consumer queue processor.  This repo also has a modified Postgres
 - ```npm install```
 - Run ```npm run dev```
 
-Messages from different correllation_keys are processed in an interleaved manner across all "slots" withing an individual processor(conconrurency > 1) and/or across multiple machines).  This is the "processing pool".
+Messages from different correllation_keys are processed in an interleaved manner across all "slots" within an individual processor(conconrurency > 1) and/or across multiple machines).  This is the "processing pool".
 ```mermaid
 gantt
     title Slot-Based View: Processing Timeline
