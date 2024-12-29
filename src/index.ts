@@ -61,7 +61,7 @@ bootstrap(async () => {
     pool, // using a shared pool for performance reasons (separate pools seem to perform badly)
     consumerConfig: {
       autoSeed: true,
-      concurrency: 5000, // Per consumer. Higher concurrency for large backlogs
+      concurrency: 5000, // Per consumer processing pool. Higher concurrency for large backlogs.
       eventsPerStream: 10, // This is the batch of events per stream before updating progress.
       retryDelayMs: 50, // The delay before a stream is eligible for retry
       maxConsecutiveErrors: 3, // The number of consecutive errors before permanently halting the stream (locked_until set to infinity)

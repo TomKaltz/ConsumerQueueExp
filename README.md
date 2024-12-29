@@ -2,7 +2,7 @@ Completely rewritten POC broker and consumer queue processor according to per co
 
 #### Features
 - The broker supports policies and projectors.
-- Polling and processing happens at the same time.
+- Polling and processing happens at the same time, no need to dispatch events to a separate queue.
 - Progress of each stream(correlation_key) is tracked in a separate table per consumer.
 - Streams are processed in parallel with very high concurrency.
 - Stream processing errors are retried after a delay.
