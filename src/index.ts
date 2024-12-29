@@ -37,7 +37,7 @@ bootstrap(async () => {
     .with(FirstAggregate)
     .with(OtherAggregate)
     .with(NeverEndingSaga)
-    .with(SagaProjector,{
+    .with(SagaProjector, {
       projector: {
         store: PostgresProjectorStore("cqe_saga_projector"),
         indexes: [
@@ -50,6 +50,7 @@ bootstrap(async () => {
     .build();
 
   const pool = new Pool({ ...config.pg, application_name: "cqe", max: 10 });
+  
   const eventStore = PostgresStore(EVENTS_TABLE, pool);
   // await eventStore.drop();
   await eventStore.seed();
@@ -58,9 +59,13 @@ bootstrap(async () => {
   const queueBroker = await ConsumerQueueingBroker({
     eventsTable: EVENTS_TABLE,
     pool, // using a shared pool for performance reasons (separate pools seem to perform badly)
-    autoSeed: true,
-    concurrency: 5000, // The higher the number the better it performs on huge backlogs
-    eventsPerStream: 10, // This is the batch of events per stream before updating progress
+    consumerConfig: {
+      autoSeed: true,
+      concurrency: 5000, // Per consumer. Higher concurrency for large backlogs
+      eventsPerStream: 10, // This is the batch of events per stream before updating progress.
+      retryDelayMs: 50, // The delay before a stream is eligible for retry
+      maxConsecutiveErrors: 3, // The number of consecutive errors before permanently halting the stream (locked_until set to infinity)
+    }
   });
   broker(queueBroker);
 

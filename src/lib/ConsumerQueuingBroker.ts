@@ -9,7 +9,7 @@ import {
   Messages,
 } from "@rotorsoft/eventually";
 import { MessageQueue } from "./interface";
-import { StreamConsumerProcessor } from "./StreamConsumerProcessor";
+import { StreamConsumerProcessor, ConsumerConfig } from "./StreamConsumerProcessor";
 import { Pool } from "pg";
 
 const event_handler_types: Array<ArtifactType> = [
@@ -32,18 +32,12 @@ export interface ConsumerQueueingBrokerOptions {
   eventsTable?: string;
   /** Whether to subscribe to commit events. Defaults to true */
   subscribed?: boolean;
-  /** Maximum concurrent events processed per handler. Defaults to 50 */
-  concurrency?: number;
-  /** Number of events to process per stream in each poll. Defaults to 10 */
-  eventsPerStream?: number;
   /** Whether to initialize processors on broker creation. Defaults to true */
   initializeOnStart?: boolean;
   /** Whether to start processors after initialization. Defaults to true */
   startOnInit?: boolean;
-  /** Whether to automatically seed processors (and their progress tables) on initialization. Defaults to false */
-  autoSeed?: boolean;
-  /** Maximum number of consecutive errors before halting a processor. Defaults to 3 */
-  maxConsecutiveErrors?: number;
+  /** Consumer configuration that will be passed to all consumers */
+  consumerConfig?: Omit<ConsumerConfig, "name" | "interestedEvents" | "pool" | "eventsTable">;
 }
 
 /**
@@ -64,12 +58,9 @@ export const ConsumerQueueingBroker = async (
     eventsTable = "events",
     subscribed = true,
     pool,
-    concurrency = 50,
-    eventsPerStream = 10,
     initializeOnStart = true,
     startOnInit = true,
-    autoSeed = false,
-    maxConsecutiveErrors = 3
+    consumerConfig = {}
   } = options ?? {};
 
   // Initialize stream processors for policies, process managers, and projectors
@@ -98,15 +89,12 @@ export const ConsumerQueueingBroker = async (
             name: artifact.factory.name,
             interestedEvents: artifact.inputs.map((input) => input.name),
             eventsTable,
-            concurrency,
-            eventsPerStream,
             pool,
-            autoSeed,
-            maxConsecutiveErrors
+            ...consumerConfig
           });
           processors.set(artifact.factory.name, processor);
           
-          if (autoSeed) {
+          if (consumerConfig.autoSeed) {
             debugLog(`Auto-seeding processor for ${artifact.factory.name}`);
             await processor.seed();
           }
