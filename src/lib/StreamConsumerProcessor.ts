@@ -99,14 +99,13 @@ WHERE consecutive_errors > 0;
  * @param consumerConfig.interestedEvents - Array of event names this consumer should process
  * @param consumerConfig.eventsTable - Name of the table containing the events
  * @param consumerConfig.pool - Postgres connection pool
- * @param consumerConfig.pollInterval - Milliseconds to wait between polling for new events (default: 1000)
  * @param consumerConfig.concurrency - Number of parallel processors to run (default: 50)
  * @param consumerConfig.eventsPerStream - Number of events per stream to process per poll (default: 10)
  * @param consumerConfig.autostart - Whether to start processing immediately (default: true)
  * @param consumerConfig.autoSeed - Whether to automatically create tables on start (default: false)
  * @param consumerConfig.retryDelayMs - Milliseconds to wait before retrying a stream after an error (default: 200)
  * @param consumerConfig.maxConsecutiveErrors - Maximum number of consecutive errors before halting a stream (default: 10)
- * @returns A processor object with start, stop, drop, seed, and dispose methods
+ * @returns A processor object with start, stop, drop, seed, dispose, and notifyEvent methods
  */
 export const StreamConsumerProcessor = async <S extends State>(
   handlerFactory: EventHandlerFactory<S> | ProjectorFactory<S>,

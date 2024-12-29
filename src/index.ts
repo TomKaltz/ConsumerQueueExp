@@ -57,10 +57,10 @@ bootstrap(async () => {
 
   const queueBroker = await ConsumerQueueingBroker({
     eventsTable: EVENTS_TABLE,
-    pool,
+    pool, // using a shared pool for performance reasons (separate pools seem to perform badly)
     autoSeed: true,
-    concurrency: 5000,
-    eventsPerStream: 10,
+    concurrency: 5000, // The higher the number the better it performs on huge backlogs
+    eventsPerStream: 10, // This is the batch of events per stream before updating progress
   });
   broker(queueBroker);
 
@@ -75,7 +75,7 @@ bootstrap(async () => {
   console.time("first-commit");
   console.time("submit-sagas");
   console.time("first-command-to-sags-all-finished");
-  console.log("starting saga commands");
+  console.log("starting 10,000 sagas!");
 
   for (let i = 0; i < 10000; i++) {
     theClient

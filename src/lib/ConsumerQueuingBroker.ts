@@ -42,6 +42,8 @@ export interface ConsumerQueueingBrokerOptions {
   startOnInit?: boolean;
   /** Whether to automatically seed processors (and their progress tables) on initialization. Defaults to false */
   autoSeed?: boolean;
+  /** Maximum number of consecutive errors before halting a processor. Defaults to 3 */
+  maxConsecutiveErrors?: number;
 }
 
 /**
@@ -66,7 +68,8 @@ export const ConsumerQueueingBroker = async (
     eventsPerStream = 10,
     initializeOnStart = true,
     startOnInit = true,
-    autoSeed = false
+    autoSeed = false,
+    maxConsecutiveErrors = 3
   } = options ?? {};
 
   // Initialize stream processors for policies, process managers, and projectors
@@ -99,6 +102,7 @@ export const ConsumerQueueingBroker = async (
             eventsPerStream,
             pool,
             autoSeed,
+            maxConsecutiveErrors
           });
           processors.set(artifact.factory.name, processor);
           
