@@ -2,7 +2,6 @@ POC broker and consumer queue processor.  This repo also has a modified Postgres
 
 # Limitation
 * Broker and Processor only supports policies at this time.
-* Consumer queue polls on an interval but LISTEN/NOTIFY should be implemented to improve message processing latency.
 
 # To run
 - Edit postgres config at top of [./src/index.ts](https://github.com/TomKaltz/ConsumerQueueExp/blob/main/src/index.ts)

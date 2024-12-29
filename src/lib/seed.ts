@@ -206,4 +206,20 @@ CREATE INDEX IF NOT EXISTS "${table}_dequeue_ix"
 CREATE INDEX IF NOT EXISTS "${table}_id_ix"
   ON public."${table}" USING btree (id)
   TABLESPACE pg_default;
+
+-- Create trigger function for notifications
+CREATE OR REPLACE FUNCTION notify_${table}_insert()
+RETURNS trigger AS $$
+BEGIN
+  PERFORM pg_notify('${table}', NEW.id::text);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger for inserts
+DROP TRIGGER IF EXISTS ${table}_notify_insert ON public."${table}";
+CREATE TRIGGER ${table}_notify_insert
+  AFTER INSERT ON public."${table}"
+  FOR EACH ROW
+  EXECUTE FUNCTION notify_${table}_insert();
 `;

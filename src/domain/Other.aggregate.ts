@@ -1,6 +1,24 @@
 import { emit, InferAggregate } from "@rotorsoft/eventually";
 import { z } from "zod";
 
+
+
+let sagaEndedCounter = 0;
+
+const incrementSagaEndedCounter = () => {
+  sagaEndedCounter++;
+  if (sagaEndedCounter === 1) {
+    console.log("sagaEndedCounter", sagaEndedCounter);
+    console.time("all-sagas-processed");
+  }
+  if (sagaEndedCounter === 10000) {
+    console.log("sagaEndedCounter", sagaEndedCounter);
+    console.timeEnd("all-sagas-processed");
+
+  console.timeEnd("first-command-to-sags-all-finished")
+  }
+};
+
 export const OtherAggregateSchemas = {
   commands: {
     DoSecondThing: z.object({}),
@@ -32,8 +50,11 @@ export const OtherAggregate = (
     },
   },
   reduce: {
-    SecondThingDone: (_, event) => ({
-      callCount: event.data.callCount,
-    }),
+    SecondThingDone: (_, event) => {
+      incrementSagaEndedCounter();
+      return {
+        callCount: event.data.callCount,
+      };
+    },
   },
 });

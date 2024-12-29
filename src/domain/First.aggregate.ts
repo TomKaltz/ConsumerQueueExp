@@ -28,11 +28,15 @@ export const FirstAggregate = (
   schemas: FirstAggregateSchemas,
   on: {
     DoFirstThing: async (_, state) => {
-      if (state.callCount > 30) return emit("SagaEnded", {});
-      
-      return emit("FirstThingDone", {
-        callCount: state.callCount + 1,
-      });
+      if (state.callCount < 30) {
+        return emit("FirstThingDone", {
+          callCount: state.callCount + 1,
+        });
+      } else if (state.callCount === 30) {
+        return emit("SagaEnded", {});
+      }
+      throw new Error('should not have been called again')
+      // return []
     },
     StartSaga: async (_, state) => {
       return emit("FirstThingDone", {
