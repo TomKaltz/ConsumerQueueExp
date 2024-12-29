@@ -55,11 +55,6 @@ bootstrap(async () => {
   await eventStore.seed();
   store(eventStore);
 
-  const subcriptionStore = PostgresSubscriptionStore("cqe_subscriptions");
-  // await subcriptionStore.drop();
-  await subcriptionStore.seed();
-  subscriptions(subcriptionStore);
-
   const queueBroker = await ConsumerQueueingBroker({
     eventsTable: EVENTS_TABLE,
     pool,
